@@ -1,12 +1,17 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/hashicorp/logutils"
 	"github.com/jessevdk/go-flags"
+
+	"github.com/dbzer0/go-template/src/app"
 )
 
 type Opts struct {
@@ -34,6 +39,22 @@ func main() {
 	}
 
 	setupLog(opts.Dbg)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// ловим сигнал для graceful termination
+	go func() {
+		stop := make(chan os.Signal, 1)
+		signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
+		<-stop
+		log.Print("[WARN] interrupt signal")
+		cancel()
+	}()
+
+	run(ctx)
+
+	log.Printf("[INFO] process terminated")
 }
 
 func setupLog(dbg bool) {
@@ -51,4 +72,22 @@ func setupLog(dbg bool) {
 	}
 
 	log.SetOutput(filter)
+}
+
+func run(ctx context.Context) {
+	server := app.NewServerApp()
+
+	// реализуем выключение по context cancellation
+	go func() {
+		<-ctx.Done()
+
+		// имплементировать операции выключения тут
+
+		// выключение сервера
+		server.Shutdown()
+
+		log.Printf("[DEBUG] gracefull shutdown complete!")
+	}()
+
+	server.Run(ctx)
 }
