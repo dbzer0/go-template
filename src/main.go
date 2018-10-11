@@ -14,12 +14,6 @@ import (
 	"github.com/dbzer0/go-template/src/app"
 )
 
-type Opts struct {
-	ConfigFile string `long:"config" env:"CONFIG" description:"config file"`
-
-	Dbg bool `long:"dbg" env:"DEBUG" description:"debug mode"`
-}
-
 var (
 	revision = "unknown"
 	version  = "unknown"
@@ -28,7 +22,13 @@ var (
 func main() {
 	fmt.Printf("PROJECTNAME %s (%s)\n", version, revision)
 
-	var opts Opts
+	type options struct {
+		ConfigFile string `long:"config" env:"CONFIG" description:"config file"`
+		Dbg        bool   `long:"dbg" env:"DEBUG" description:"debug mode"`
+	}
+	var opts options
+
+	// парсинг опций
 	p := flags.NewParser(&opts, flags.Default)
 	if _, err := p.Parse(); err != nil {
 		if flagsErr, ok := err.(*flags.Error); ok && flagsErr.Type == flags.ErrHelp {
@@ -57,6 +57,7 @@ func main() {
 	log.Printf("[INFO] process terminated")
 }
 
+// setupLog настраивает уровни логирования и вывод логгера в os.Stdout.
 func setupLog(dbg bool) {
 	filter := &logutils.LevelFilter{
 		Levels:   []logutils.LogLevel{"DEBUG", "INFO", "WARN", "ERROR"},
@@ -74,6 +75,7 @@ func setupLog(dbg bool) {
 	log.SetOutput(filter)
 }
 
+// run запускает основной цикл программы, стартующий все остальные приложения.
 func run(ctx context.Context) {
 	serverApp := app.NewServerApp(ctx)
 
