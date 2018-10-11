@@ -6,41 +6,39 @@ import (
 	"time"
 )
 
+// serverApp является абстрактным приложением.
 type serverApp struct {
-	terminated chan struct{}
+	ctx context.Context
 }
 
-func NewServerApp() *serverApp {
-	return &serverApp{
-		terminated: make(chan struct{}),
-	}
+// NewServerApp - конструктор приложения.
+func NewServerApp(ctx context.Context) *serverApp {
+	return &serverApp{ctx: ctx}
 }
 
-// Wait() - ожидает завершение работы приложения.
-func (a *serverApp) Wait() {
-	<-a.terminated
-}
+// Run - основной цикл программы.
+func (a *serverApp) Run() error {
+	go a.exampleWorker()
 
-// Run() - основной цикл программы.
-func (a *serverApp) Run(ctx context.Context) error {
-	for {
-		select {
-		case <-a.terminated:
-			log.Println("[DEBUG] serverApp terminated")
-			return nil
-		case <-ctx.Done():
-			log.Println("[DEBUG] application terminated")
-			return nil
-		default:
-			time.Sleep(1 * time.Second)
-		}
-	}
+	<-a.ctx.Done()
+	log.Println("[DEBUG] application terminated")
 	a.Shutdown()
-
 	return nil
 }
 
-// Shutdown() - выключает сервер, закрывая канал.
+// Shutdown - выключает сервер, закрывая канал.
 func (a *serverApp) Shutdown() {
-	close(a.terminated)
+	log.Println("[DEBUG] serverApp shutdown successfully")
+}
+
+// exampleWorker выводит сообщение о своей работе на экран.
+func (a *serverApp) exampleWorker() {
+	for {
+		select {
+		case <-time.After(time.Second):
+			log.Println("[INFO] work in progress...")
+		case <-a.ctx.Done():
+			break
+		}
+	}
 }

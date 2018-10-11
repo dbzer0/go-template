@@ -75,19 +75,16 @@ func setupLog(dbg bool) {
 }
 
 func run(ctx context.Context) {
-	server := app.NewServerApp()
+	serverApp := app.NewServerApp(ctx)
 
 	// реализуем выключение по context cancellation
 	go func() {
 		<-ctx.Done()
 
-		// имплементировать операции выключения тут
-
-		// выключение сервера
-		server.Shutdown()
+		// имплементировать операции выключения можно здесь
 
 		log.Printf("[DEBUG] gracefull shutdown complete!")
 	}()
 
-	server.Run(ctx)
+	serverApp.Run()
 }
