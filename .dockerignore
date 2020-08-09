@@ -1,8 +1,7 @@
 /.idea/
-/.git/
 /docs/
 /bin/
-/src/.cover/
+/app/.cover/
 
 coverage.html
 docker-compose.yml

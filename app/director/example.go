@@ -1,4 +1,4 @@
-package app
+package director
 
 import (
 	"context"
@@ -6,18 +6,18 @@ import (
 	"time"
 )
 
-// serverApp является абстрактным приложением.
-type serverApp struct {
+// ExampleDirector является абстрактным приложением.
+type ExampleDirector struct {
 	ctx context.Context
 }
 
 // NewServerApp - конструктор приложения.
-func NewServerApp(ctx context.Context) *serverApp {
-	return &serverApp{ctx: ctx}
+func NewServerApp(ctx context.Context) *ExampleDirector {
+	return &ExampleDirector{ctx: ctx}
 }
 
 // Run - основной цикл программы.
-func (a *serverApp) Run() error {
+func (a *ExampleDirector) Run() error {
 	go a.exampleWorker()
 
 	<-a.ctx.Done()
@@ -27,12 +27,12 @@ func (a *serverApp) Run() error {
 }
 
 // Shutdown - выключает сервер, закрывая канал.
-func (a *serverApp) Shutdown() {
-	log.Println("[DEBUG] serverApp shutdown successfully")
+func (a *ExampleDirector) Shutdown() {
+	log.Println("[DEBUG] ExampleDirector shutdown successfully")
 }
 
 // exampleWorker выводит сообщение о своей работе на экран.
-func (a *serverApp) exampleWorker() {
+func (a *ExampleDirector) exampleWorker() {
 	for {
 		select {
 		case <-time.After(time.Second):

@@ -1,11 +1,11 @@
-all:
-	$(MAKE) -C src all
-
 build:
-	$(MAKE) -C src build
+	$(MAKE) -C app build
+
+build-cross-platform:
+	$(MAKE) -C app bin-cross-platform
 
 clean:
-	$(MAKE) -C src clean
+	$(MAKE) -C app clean
 	if [ -f coverage.html ] ; then rm coverage.html ; fi
 	if [ -d .cover ] ; then rm -rf .cover ; fi
 	docker-compose down --rmi all -v 2>/dev/null || true
@@ -13,7 +13,7 @@ clean:
 	docker-compose rm >/dev/null
 
 rebuild:
-	docker-compose build PROJECTNAME
+	docker-compose build techno-sso
 	docker-compose build unit
 
 unit:

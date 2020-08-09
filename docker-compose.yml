@@ -9,13 +9,10 @@ services:
         - http_proxy
         - https_proxy
         - no_proxy
-    volumes:
-     - /etc/localtime:/etc/localtime:ro
     ports:
-     - "8002:8002"
+     - "8080:8080"
     environment:
-      - VERSION=0.0.1
-      - REVISION=Devel
+      - TESTING=1
 
   unit:
     container_name: unit
@@ -28,8 +25,8 @@ services:
         - no_proxy
     volumes:
         - /etc/localtime:/etc/localtime:ro
-        - .:/go/src/device.ufo/PROJECTNAME
-    working_dir: /go/src/device.ufo/PROJECTNAME/src
+        - .:/go/app/device.ufo/PROJECTNAME
+    working_dir: /go/app/device.ufo/PROJECTNAME/app
     environment:
       - UID=1000
       - GID=1000

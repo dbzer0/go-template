@@ -11,26 +11,30 @@ import (
 	"github.com/hashicorp/logutils"
 	"github.com/jessevdk/go-flags"
 
-	"github.com/dbzer0/go-template/src/app"
+	"github.com/dbzer0/go-template/app/director"
 )
 
-var (
-	revision = "unknown"
-	version  = "unknown"
-)
+var version = "unknown"
+
+type configuration struct {
+	ListenAddr string `short:"l" long:"listen" env:"LISTEN" description:"Listen Address (format: :8080|127.0.0.1:8080)" required:"false" default:":8080"`
+	BasePath   string `long:"base-path" env:"BASE_PATH" description:"base path of the host" required:"false" default:"sso"`
+	CertFile   string `short:"c" long:"cert" env:"CERT_FILE" description:"Location of the SSL/TLS cert file" required:"false" default:""`
+	KeyFile    string `short:"k" long:"key" env:"KEY_FILE" description:"Location of the SSL/TLS key file" required:"false" default:""`
+
+	Dbg       bool `long:"dbg" env:"DEBUG" description:"debug mode"`
+	IsTesting bool `long:"testing" env:"APP_TESTING" description:"testing mode"`
+}
 
 func main() {
-	fmt.Printf("PROJECTNAME %s (%s)\n", version, revision)
+	fmt.Printf("PROJECTNAME %s\n", version)
 
-	type options struct {
-		ConfigFile string `long:"config" env:"CONFIG" description:"config file"`
-		Dbg        bool   `long:"dbg" env:"DEBUG" description:"debug mode"`
-	}
-	var opts options
+	var opts configuration
 
 	// парсинг опций
 	p := flags.NewParser(&opts, flags.Default)
 	if _, err := p.Parse(); err != nil {
+		log.Println("[ERROR] Ошибка парсинга опций:", err)
 		if flagsErr, ok := err.(*flags.Error); ok && flagsErr.Type == flags.ErrHelp {
 			os.Exit(0)
 		} else {
@@ -52,7 +56,7 @@ func main() {
 		cancel()
 	}()
 
-	run(ctx)
+	run(ctx, &opts)
 
 	log.Printf("[INFO] process terminated")
 }
@@ -76,17 +80,8 @@ func setupLog(dbg bool) {
 }
 
 // run запускает основной цикл программы, стартующий все остальные приложения.
-func run(ctx context.Context) {
-	serverApp := app.NewServerApp(ctx)
-
-	// реализуем выключение по context cancellation
-	go func() {
-		<-ctx.Done()
-
-		// имплементировать операции выключения можно здесь
-
-		log.Printf("[DEBUG] gracefull shutdown complete!")
-	}()
+func run(ctx context.Context, opts *configuration) {
+	serverApp := director.NewServerApp(ctx)
 
 	serverApp.Run()
 }

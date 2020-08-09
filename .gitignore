@@ -1,4 +1,4 @@
 .idea/
 bin/
-src/.cover
+app/.cover
 coverage.html
