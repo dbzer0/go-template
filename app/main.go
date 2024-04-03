@@ -73,7 +73,7 @@ func setupLog(dbg bool) {
 
 	if dbg {
 		log.SetFlags(log.Ldate | log.Ltime | log.Lmicroseconds | log.Lshortfile)
-		filter.MinLevel = logutils.LogLevel("DEBUG")
+		filter.MinLevel = "DEBUG"
 	}
 
 	log.SetOutput(filter)
